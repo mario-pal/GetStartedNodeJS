@@ -1,0 +1,30 @@
+<h1>User Data for <%= user.fullName %></h1>
+
+<table class="tabel">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Zip Code</th>
+      <th>Password</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= user.fullName %></td>
+      <td><%= user.email %></td>
+      <td><%= user.zipCode %></td>
+      <td><%= user.password %></td>
+    </tr>
+  </tbody>
+</table>
+<% if(user.subscribedAccounts) { %>
+<h4 class="center">
+  This user has a
+  <a href="<%= `/subscribers/${user.subscribedAccount}` %>">
+    subscribed account
+  </a>
+</h4>
+<% } %>
+<!-- This view is just a copy paste of the index.ejs view and does not...
+...reflect the actual view intended displayed on page 215 -->

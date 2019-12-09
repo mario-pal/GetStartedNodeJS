@@ -52,7 +52,7 @@ const Subscriber = require("./subscriber"); //needed for this hook to work
 //This hook runs before a user is created or saved (recall that mongoose' create makes and saves a new user)
 userSchema.pre("save", function(next) {
   let user = this; //the lack of arrow functions force you to define a user outside the promise chain
-  if (user.subscribedAccount === undifined) {
+  if (user.subscribedAccount === undefined) {
     Subscriber.findOne({
       email: user.email
     })

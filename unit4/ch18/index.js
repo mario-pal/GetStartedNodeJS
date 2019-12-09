@@ -86,6 +86,10 @@ router.post(
   usersController.create,
   usersController.redirectView
 );
+//the :id parameter will be filled with the user's ID passing in from the index page
+//note: you can change the name of the :id paramter as long as you're consistent in your other code
+//extra note: now all paths /users/* that dont already have a specific router will lead to a 500 error
+router.get("/users/:id", usersController.show, usersController.showView);
 
 //error handling routes
 app.use(errorController.pageNotFoundError);
