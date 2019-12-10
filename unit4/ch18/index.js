@@ -44,7 +44,21 @@ const express = require("express"),
   //layout
   layouts = require("express-ejs-layouts"),
   //router
-  router = express.Router();
+  router = express.Router(),
+  //to enable this express app to interpret put requests
+  methodOverride = require("method-override");
+
+app.use("/", router); //this tells this Express.js application to use the router object...
+//...as a system for middleware and routing
+
+router.use(
+  //configure the application router to use methodOverride as middleware
+  //Express.js receives HTML form submissions as POST requests by default pg221
+  //method override is simply one solution out of many to address this limitation
+  methodOverride("_method", {
+    methods: ["POST", "GET"]
+  })
+);
 
 app.set("view engine", "ejs");
 app.use(layouts);
@@ -75,8 +89,7 @@ app.get("/contact", subscribersController.getSubscriptionPage);
 app.post("/subscribe", subscribersController.saveSubscriber);
 //app.get("/users", usersController.index);
 */
-app.use("/", router); //this tells this Express.js application to use the router object...
-//...as a system for middleware and routing
+
 router.get("/users", usersController.index, usersController.indexView); //decoupled version from users app.get above
 
 router.get("/users/new", usersController.new); //note: ommiting the leading '/' in "/users/new"...

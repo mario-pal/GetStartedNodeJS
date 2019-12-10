@@ -5,6 +5,8 @@
       <th>Name</th>
       <th>Email</th>
       <th>Zip Code</th>
+      <!-- Added this column to enable the U in CRUD-->
+      <th>Edit</th>
     </tr>
   </thead>
   <tbody>
@@ -17,6 +19,12 @@
       </td>
       <td><%= user.email %></td>
       <td><%= user.zipCode %></td>
+      <!-- Added this column to enable the U in CRUD-->
+      <td>
+        <a href="<% `/users/${user._id}/edit` %>">
+          Edit
+        </a>
+      </td>
     </tr>
     <% }); %>
   </tbody>
