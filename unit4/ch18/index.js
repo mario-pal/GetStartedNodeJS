@@ -48,15 +48,16 @@ const express = require("express"),
   //to enable this express app to interpret put requests
   methodOverride = require("method-override");
 
-app.use("/", router); //this tells this Express.js application to use the router object...
-//...as a system for middleware and routing
-
 router.use(
-  //configure the application router to use methodOverride as middleware
-  //Express.js receives HTML form submissions as POST requests by default pg221
-  //method override is simply one solution out of many to address this limitation
+  /*configure the application router to use methodOverride as middleware.
+  Express.js receives the HTML form submissions as POST since the method attribute in the form tag,
+  is set to POST in edit.ejs. We could have simply set the method ="PUT" however support,
+  from browsers for PUT (and DELETE) is rare source: HTML&CSS the complete reference Thomas A. Powell
+  Method override is simply one solution out of many to address this limitation.
+  */
   methodOverride("_method", {
-    methods: ["POST", "GET"]
+    //look for the _method query parameter in the url and interpret
+    methods: ["POST", "GET"] //the request by using the method specified by the paramter
   })
 );
 
@@ -90,6 +91,13 @@ app.post("/subscribe", subscribersController.saveSubscriber);
 //app.get("/users", usersController.index);
 */
 
+//app.use("/", router) should be used after all other configuration is done.
+//if not, there could be error in parsing the request body for example.
+//try moving app.use("/", router) to the top after the const declarations and update a user's profile...
+//...there will be a bug where req.body is undefined
+app.use("/", router); //this tells this Express.js application to use the router object...
+//...as a system for middleware and routing
+
 router.get("/users", usersController.index, usersController.indexView); //decoupled version from users app.get above
 
 router.get("/users/new", usersController.new); //note: ommiting the leading '/' in "/users/new"...
@@ -103,6 +111,13 @@ router.post(
 //note: you can change the name of the :id paramter as long as you're consistent in your other code
 //extra note: now all paths /users/* that dont already have a specific router will lead to a 500 error
 router.get("/users/:id", usersController.show, usersController.showView);
+
+router.get("/users/:id/edit", usersController.edit);
+router.put(
+  "/users/:id/update",
+  usersController.update,
+  usersController.redirectView
+);
 
 //error handling routes
 app.use(errorController.pageNotFoundError);

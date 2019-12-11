@@ -1,6 +1,6 @@
 const User = require("../models/user");
 
-//This is fine only if you want to couple your query and the displaying of the view
+//This is fine only if you want to couple your query and the displaying of the index view
 /*module.exports = {
   index: (req, res) => {
     User.find({})
@@ -14,7 +14,7 @@ const User = require("../models/user");
   }
 };*/
 
-//this approach decouples the query from the view display
+//this approach decouples the query from the index view display
 module.exports = {
   index: (req, res, next) => {
     User.find()
@@ -78,5 +78,41 @@ module.exports = {
   },
   showView: (req, res) => {
     res.render("users/show");
+  },
+  //actions to edit and update user info
+  edit: (req, res, next) => {
+    let userId = req.params.id;
+    User.findById(userId)
+      .then(user => {
+        res.render("users/edit", {
+          user: user
+        });
+      })
+      .catch(error => {
+        console.error(`Error fetching user by ID: ${error.message}`);
+        next(error);
+      });
+  },
+  update: (req, res, next) => {
+    let userId = req.params.id,
+      userParams = {
+        name: {
+          first: req.body.first,
+          last: req.body.last
+        },
+        email: req.body.email,
+        password: req.body.password,
+        zipCode: req.body.zipCode
+      };
+    User.findByIdAndUpdate(userId, { $set: userParams }) //mongoose method
+      .then(user => {
+        res.locals.redirect = `/users/${userId}`;
+        res.locals.user = user;
+        next();
+      })
+      .catch(error => {
+        console.log(`Error updating user by ID: ${error.message}`);
+        next(error);
+      });
   }
 };
