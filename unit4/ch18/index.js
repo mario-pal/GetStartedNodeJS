@@ -118,6 +118,11 @@ router.put(
   usersController.update,
   usersController.redirectView
 );
+router.delete(
+  "/users/:id/delete",
+  usersController.delete,
+  usersController.redirectView
+);
 
 //error handling routes
 app.use(errorController.pageNotFoundError);
