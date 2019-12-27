@@ -47,7 +47,29 @@ const express = require("express"),
   //router
   router = express.Router(),
   //to enable this express app to interpret put requests
-  methodOverride = require("method-override");
+  methodOverride = require("method-override"),
+  //session management
+  expressSession = require("express-session"), //sessions contain data about the most recent interaction between a user and an application
+  cookieParser = require("cookie-parser"),
+  connectFlash = require("connect-flash"); //this package is dependent on sessions and cookies to pass flash messages between requests
+router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
+//cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser
+router.use(
+  expressSession({
+    //youre telling express-sessions that you wasnt it to use cookies as its storage method
+    //espressSessions is necessary to pass messages between the application and the client. You can store masages in a user's browser in many ways including cookies
+    secret: "HaHaULose", //this secret key should be stored in an environment variable...this will be changed in unit 8 (same with the cookieParser)
+    cookie: {
+      //cookies are a form of session storage
+      maxAge: 4000000 //expire cookies after about an hour
+    },
+    resave: false, //specifies that you dont want to update existing session data on the server if nothing has changed in the existibng session
+    saveUninitialized: false //specifiess that you dont want to send a cookie to a user if no messages are added to the session
+  })
+);
+router.use(connectFlash); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
+//as part of a session.
+//end of session management
 
 router.use(
   /*configure the application router to use methodOverride as middleware.
