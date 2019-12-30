@@ -52,37 +52,6 @@ const express = require("express"),
   expressSession = require("express-session"), //sessions contain data about the most recent interaction between a user and an application
   cookieParser = require("cookie-parser"),
   connectFlash = require("connect-flash"); //this package is dependent on sessions and cookies to pass flash messages between requests
-router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
-//cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser
-router.use(
-  expressSession({
-    //youre telling express-sessions that you wasnt it to use cookies as its storage method
-    //espressSessions is necessary to pass messages between the application and the client. You can store masages in a user's browser in many ways including cookies
-    secret: "HaHaULose", //this secret key should be stored in an environment variable...this will be changed in unit 8 (same with the cookieParser)
-    cookie: {
-      //cookies are a form of session storage
-      maxAge: 4000000 //expire cookies after about an hour
-    },
-    resave: false, //specifies that you dont want to update existing session data on the server if nothing has changed in the existibng session
-    saveUninitialized: false //specifiess that you dont want to send a cookie to a user if no messages are added to the session
-  })
-);
-router.use(connectFlash); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
-//as part of a session.
-//end of session management
-
-router.use(
-  /*configure the application router to use methodOverride as middleware.
-  Express.js receives the HTML form submissions as POST since the method attribute in the form tag,
-  is set to POST in edit.ejs. We could have simply set the method ="PUT" however support,
-  from browsers for PUT (and DELETE) is rare source: HTML&CSS the complete reference Thomas A. Powell
-  Method override is simply one solution out of many to address this limitation.
-  */
-  methodOverride("_method", {
-    //look for the _method query parameter in the url and interpret
-    methods: ["POST", "GET"] //the request by using the method specified by the paramter
-  })
-);
 
 app.set("view engine", "ejs");
 app.use(layouts);
@@ -117,6 +86,45 @@ app.use(express.json());
 //...there will be a bug where req.body is undefined
 app.use("/", router); //this tells this Express.js application to use the router object...
 //...as a system for middleware and routing
+
+router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
+//cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser
+router.use(
+  expressSession({
+    //youre telling express-sessions that you wasnt it to use cookies as its storage method
+    //espressSessions is necessary to pass messages between the application and the client. You can store masages in a user's browser in many ways including cookies
+    secret: "HaHaULose", //this secret key should be stored in an environment variable...this will be changed in unit 8 (same with the cookieParser)
+    cookie: {
+      //cookies are a form of session storage
+      maxAge: 4000000 //expire cookies after about an hour
+    },
+    resave: false, //specifies that you dont want to update existing session data on the server if nothing has changed in the existibng session
+    saveUninitialized: false //specifiess that you dont want to send a cookie to a user if no messages are added to the session
+  })
+);
+router.use(connectFlash()); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
+//...as part of a session.
+
+router.use((req, res, next) => {
+  //this middleware configuration treats connectFlash messages like a local variable on the response
+  res.locals.flashMessages = req.flash(); //a flash message is no different from a local variable being available to the view.
+  next(); //to show potential success and error flash messages I add the code to display those messages in layout.ejs
+});
+//end of session management
+
+router.use(
+  /*configure the application router to use methodOverride as middleware.
+  Express.js receives the HTML form submissions as POST since the method attribute in the form tag,
+  is set to POST in edit.ejs. We could have simply set the method ="PUT" however support,
+  from browsers for PUT (and DELETE) is rare source: HTML&CSS the complete reference Thomas A. Powell
+  Method override is simply one solution out of many to address this limitation.
+  */
+
+  methodOverride("_method", {
+    //look for the _method query parameter in the url and interpret
+    methods: ["POST", "GET"] //the request by using the method specified by the paramter
+  })
+);
 //-------------------------------------USERS------------------------------------
 router.get("/users", usersController.index, usersController.indexView); //decoupled version from users app.get above
 router.get("/users/new", usersController.new); //note: ommiting the leading '/' in "/users/new"...

@@ -30,8 +30,10 @@ module.exports = {
   },
   indexView: (req, res) => {
     //purpose of indexview: display all documents for a particlar model
-    res.render("users/index");
-  },
+    res.render("users/index", {
+      flashMessages: { success: "Loaded all users!" }
+    }); //the flashMessage is optional and used to demonstarte that you can pass a flash message directly as a local variable
+  }, //whne passing flashMessages object directly to the vie, you dont need to wait for a redirect or use connect-flash
   //actions to create a new user from a form on this webpage
   new: (req, res) => {
     res.render("users/new");
@@ -49,13 +51,24 @@ module.exports = {
 
     User.create(userParams) //now using mongoose create function
       .then(user => {
+        req.flash(
+          //success and error are made up flash-message types that attaches the key (i.e. success, error, etc) to the message on the right
+          "success",
+          `${user.fullName}'s account created successfully!`
+        ); //respond with a success flash message to the user
         res.locals.redirect = "/users";
         res.locals.user = user;
         next();
       })
       .catch(error => {
         console.log(`Error saving user: ${error.message}`);
-        next(error);
+        res.locals.redirect = "/users/new";
+        req.flash(
+          "error",
+          `Failed to create user account because: ${error.message}.` //respond with a failure flash message
+        );
+        next();
+        //next(error);
       });
   },
   redirectView: (req, res, next) => {
