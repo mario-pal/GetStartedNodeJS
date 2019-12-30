@@ -134,9 +134,16 @@ router.post(
   usersController.create,
   usersController.redirectView
 );
+router.get("/users/login", usersController.login); //route to view login page
+router.post(
+  "/users/login",
+  usersController.authenticate,
+  usersController.redirectView
+);
 //the :id parameter will be filled with the user's ID passing in from the index page
 //note: you can change the name of the :id paramter as long as you're consistent in your other code
-//extra note: now all paths /users/* that dont already have a specific router will lead to a 500 error
+//extra note: now all paths /users/* that dont already have a specific router will lead to a 500 error...
+//...for example if the /users/login path was listed after /users/:id then login would be interpreted as an id by Express.js
 router.get("/users/:id", usersController.show, usersController.showView);
 
 router.get("/users/:id/edit", usersController.edit);
