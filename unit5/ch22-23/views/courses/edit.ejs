@@ -1,0 +1,49 @@
+<div class="data-form">
+  <form action="<%=`/courses/${course._id}/update?_method=PUT`%>" method="POST">
+    <h2>Edit a course:</h2>
+    <label for="inputTitle">Title</label>
+    <input
+      type="text"
+      name="title"
+      id="inputTitle"
+      placeholder="Title"
+      value="<%= course.title %>"
+      autofocus
+    />
+    <!--Does order between placeholder and value matter?-->
+
+    <label for="inputMaxStudents">Max Students</label>
+    <input
+      type="text"
+      name="maxStudents"
+      id="inputMaxStudents"
+      pattern="[0-9]{2}"
+      placeholder="Max Number of Students"
+      value="<%= course.maxStudents%>"
+      required
+    />
+
+    <label for="inputCost">Cost</label>
+    <input
+      type="text"
+      name="cost"
+      id="inputCost"
+      pattern="[0-9]{3}"
+      placeholder="Course Cost"
+      value="<%= course.cost%>"
+      required
+    />
+
+    <label for="inputDescription">Description</label>
+    <input
+      type="text"
+      name="description"
+      id="inputDescription"
+      placeholder="Description"
+      value="<%= course.description%>"
+      required
+    />
+
+    <button type="submit">Save</button>
+  </form>
+</div>

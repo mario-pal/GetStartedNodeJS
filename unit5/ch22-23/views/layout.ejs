@@ -1,0 +1,12 @@
+<div class="flashes">
+  <% if(flashMessages) { %> <% if(flashMessages.success){ %>
+  <div class="flash success"><%= flashMessages.success %></div>
+  <% } else if(flashMessages.error){ %>
+  <div class="flash error"><%= flashMessages.error %></div>
+  <% } %> <% } %>
+</div>
+<h2>
+  <a href="/subscribers/new">contact</a>
+  <a href="/courses">course listings</a>
+</h2>
+<%- body %>
