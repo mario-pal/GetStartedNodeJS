@@ -39,6 +39,10 @@ module.exports = {
     res.render("users/new");
   },
   create: (req, res, next) => {
+    if (req.skip) {
+      //refer to the validate action that sets this custom property to true if there was a problem with user data form entry
+      next();
+    }
     let userParams = {
       name: {
         first: req.body.first, //where the form input feild has the name attribute set to first
@@ -183,5 +187,38 @@ module.exports = {
         console.log(`Error deleting user by ID: ${error.message}`);
         next(error);
       });
+  },
+  //validating user data entered in web page form
+  validate: (req, res, next) => {
+    req
+      .sanitizeBody("email")
+      .normalizeEmail({
+        all_lowercase: true
+      })
+      .trim(); //remove whitespace with the trim method
+    req.check("email", "Email is invalid").isEmail();
+    req
+      .check("zipCode", "Zip code is invalid")
+      .notEmpty()
+      .isInt()
+      .isLength({
+        min: 5,
+        max: 5
+      })
+      .equals(req.body.zipCode);
+
+    req.check("password", "Password cannot be empty").notEmpty();
+
+    req.getValidationResult().then(error => {
+      if (!error.isEmpty()) {
+        let messages = error.array().map(e => e.msg);
+        req.skip = true;
+        req.flash("error", messages.join(" and "));
+        res.locals.redirect = "/users/new";
+        next();
+      } else {
+        next();
+      }
+    });
   }
 };

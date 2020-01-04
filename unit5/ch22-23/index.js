@@ -51,12 +51,14 @@ const express = require("express"),
   //session management
   expressSession = require("express-session"), //sessions contain data about the most recent interaction between a user and an application
   cookieParser = require("cookie-parser"),
-  connectFlash = require("connect-flash"); //this package is dependent on sessions and cookies to pass flash messages between requests
+  connectFlash = require("connect-flash"), //this package is dependent on sessions and cookies to pass flash messages between requests
+  //user data entry validation
+  expressValidator = require("express-validator");
 
 app.set("view engine", "ejs");
 app.use(layouts);
 
-//enable/ease static file assets
+//enable/ease static file asset access
 app.use(express.static("public"));
 
 app.set("port", process.env.PORT || 3000);
@@ -86,6 +88,9 @@ app.use(express.json());
 //...there will be a bug where req.body is undefined
 app.use("/", router); //this tells this Express.js application to use the router object...
 //...as a system for middleware and routing
+
+router.use(expressValidator()); //this must be added after express.json() and express.urlencoded() middleware is introduced...
+//...since the request body must be parsed before it can be validated
 
 router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
 //cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser
@@ -131,6 +136,7 @@ router.get("/users/new", usersController.new); //note: ommiting the leading '/' 
 //...will make this route not work(this is true for any route)
 router.post(
   "/users/create",
+  usersController.validate, //handle requests before they reach the create action
   usersController.create,
   usersController.redirectView
 );
