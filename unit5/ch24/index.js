@@ -97,7 +97,8 @@ app.use("/", router); //this tells this Express.js application to use the router
 //...as a system for middleware and routing
 
 router.use(expressValidator()); //this must be added after express.json() and express.urlencoded() middleware is introduced...
-//...since the request body must be parsed before it can be validated
+//...since the request body must be parsed before it can be validated...you must also install express-validator 5.3 or before to use...
+//...express-validator as a function in this way
 
 router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
 //cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser

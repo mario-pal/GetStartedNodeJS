@@ -1,6 +1,6 @@
 const mongoose = require("mongoose"),
   bcrypt = require("bcrypt"),
-  passportLocalMongoose = require("passport-local-mongoose"),
+  passportLocalMongoose = require("passport-local-mongoose"), //you can use this method to let the User model access passport methods such as User.register
   { Schema } = mongoose; //without this, you would otherwise need to do const userSchema = new mongoose.Schema({
 
 const userSchema = new Schema(
