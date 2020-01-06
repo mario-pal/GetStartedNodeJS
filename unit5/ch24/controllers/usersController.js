@@ -13,7 +13,14 @@ const User = require("../models/user");
       });
   }
 };*/
-
+const getUserParams = body => {
+  //create a custom function to pull subscriber data from the request
+  return {
+    name: { first: body.first, last: body.last },
+    email: body.email,
+    zipCode: parseInt(body.zipCode)
+  };
+};
 //this approach decouples the query from the index view display
 module.exports = {
   index: (req, res, next) => {
@@ -43,7 +50,26 @@ module.exports = {
       //refer to the validate action that sets this custom property to true if there was a problem with user data form entry
       next();
     }
-    let userParams = {
+    let newUser = new User(getUserParams(req.body));
+
+    User.register(newUser, req.body.password, (error, user) => {
+      if (user) {
+        req.flash(
+          "success",
+          `${user.fullName}'s account created successfully!`
+        );
+        res.locals.redirect = "/users";
+        next();
+      } else {
+        req.flash(
+          "error",
+          `Failed to create user account because: ${error.message}.`
+        );
+        res.locals.redirect = "/users/new";
+        next();
+      }
+    });
+    /*let userParams = {
       name: {
         first: req.body.first, //where the form input feild has the name attribute set to first
         last: req.body.last
@@ -73,7 +99,7 @@ module.exports = {
         );
         next();
         //next(error);
-      });
+      });*/
   },
   redirectView: (req, res, next) => {
     let redirectPath = res.locals.redirect;

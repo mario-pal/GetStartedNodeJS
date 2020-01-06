@@ -2,6 +2,7 @@ const mongoose = require("mongoose"),
   bcrypt = require("bcrypt"),
   passportLocalMongoose = require("passport-local-mongoose"),
   { Schema } = mongoose; //without this, you would otherwise need to do const userSchema = new mongoose.Schema({
+
 const userSchema = new Schema(
   {
     name: {
@@ -87,12 +88,12 @@ userSchema.pre("save", function(next) {
     });
 });*/
 
-userSchema.methods.passwordComparison = function(inputPassword) {
+/*userSchema.methods.passwordComparison = function(inputPassword) {
   let user = this;
   return bcrypt.compare(inputPassword, user.password);
-};
+};*/
 //when the following plugin is in place,  Passport.js automatically takes care of password storage ...
 //... so you can remove the password property from the userSchema. This plugin modifies your schema behind...
-//...the scenes to add hash and salt fields to your User model in place of the normal password field
+//...the scenes to add hash and salt fields to your User model in place of the password field that would otherwise be inputted manually
 userSchema.plugin(passportLocalMongoose, { usernameField: "email" }); //use email of the user's login parameter instead of the default username
 module.exports = mongoose.model("User", userSchema);
