@@ -9,4 +9,10 @@
   <a href="/subscribers/new">contact</a>
   <a href="/courses">course listings</a>
 </h2>
-<%- body %>
+<% if (loggedIn) { %>
+<a href="<%=`/users/${currentUser._id}` %>">
+  <%= currentUser.fullName %>
+</a>
+<%} else {%>
+<a href="/users/login">Log In</a>
+<%}%> <%- body %>

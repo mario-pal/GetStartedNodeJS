@@ -1,4 +1,5 @@
-const User = require("../models/user");
+const User = require("../models/user"),
+  passport = require("passport");
 
 //This is fine only if you want to couple your query and the displaying of the index view
 /*module.exports = {
@@ -47,7 +48,7 @@ module.exports = {
   },
   create: (req, res, next) => {
     if (req.skip) {
-      //refer to the validate action that sets this custom property to true if there was a problem with user data form entry
+      //refer to the validate action that sets this custom property to true if there was a problem with user data validation
       next();
     }
     let newUser = new User(getUserParams(req.body));
@@ -110,11 +111,13 @@ module.exports = {
   login: (req, res) => {
     res.render("users/login");
   },
-  authenticate: (req, res, next) => {
+  /*(req, res, next) => {
     User.findOne({
       email: req.body.email
     })
-      .then(/*user => {
+      .then(*/
+  authenticate:
+    /*user => {
         if (user) {
           user.passwordComparison(req.body.password).then(passwordsMatch => {
             if (passwordsMatch) {
@@ -142,12 +145,20 @@ module.exports = {
           res.locals.redirect = "/users/login";
           next();
         }
-      }*/)
+      }*/
+    /*)
       .catch(error => {
         console.log(`Error logging in user: ${error.message}`);
         next(error);
-      });
-  },
+      });*/
+    passport.authenticate("local", {
+      //authenticating via the "local" strategy
+      failureRedirect: "/users/login",
+      failureFlash: "Failed to login",
+      successRedirect: "/",
+      successFlash: "Logged in!"
+    }), //the login route in index.js(main file) no longer needs the usersController.redirectView action when using this
+  //},
   //===============================
   //show action (showing a specific user's profile)
   show: (req, res, next) => {

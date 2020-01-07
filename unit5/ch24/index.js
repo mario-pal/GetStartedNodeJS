@@ -56,12 +56,6 @@ const express = require("express"),
   expressValidator = require("express-validator"),
   passport = require("passport");
 
-//setting up passport serializing
-const User = require("./models/user");
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 app.set("view engine", "ejs");
 app.use(layouts);
 
@@ -118,15 +112,26 @@ router.use(
 router.use(connectFlash()); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
 //...as part of a session.
 
-router.use((req, res, next) => {
-  //this middleware configuration treats connectFlash messages like a local variable on the response
-  res.locals.flashMessages = req.flash(); //a flash message is no different from a local variable being available to the view.
-  next(); //to show potential success and error flash messages I add the code to display those messages in layout.ejs
-});
-//end of session management
-
 router.use(passport.initialize());
 router.use(passport.session()); //must be defined after the definiton of express session
+
+//setting up passport serializing
+const User = require("./models/user");
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+router.use((req, res, next) => {
+  //make sure to initialize passport and all its configurations before defining this middleware since you use passport.js methods
+  //purpose of this custom middleware is to gain access to variables in the clientside views
+  //this middleware configuration treats connectFlash messages like a local variable on the response
+  res.locals.flashMessages = req.flash(); //a flash message is no different from a local variable being available to the view.
+  res.locals.loggedIn = req.isAuthenticated(); //isAuthenticated is a method provided by Passport.js...
+  //...(checks whether there is an exxisting user stored in the request cookies)
+  res.locals.currentUser = req.user;
+  next(); //to show potential success and error flash messages I add the code to display those messages in layout.ejs
+});
+//end of session management?
 
 router.use(
   /*configure the application router to use methodOverride as middleware.
@@ -154,8 +159,8 @@ router.post(
 router.get("/users/login", usersController.login); //route to view login page
 router.post(
   "/users/login",
-  usersController.authenticate,
-  usersController.redirectView
+  usersController.authenticate //,
+  //usersController.redirectView//usersController.redirectView no longer needed if using passport.js autheticate method in usersController
 );
 //the :id parameter will be filled with the user's ID passing in from the index page
 //note: you can change the name of the :id paramter as long as you're consistent in your other code

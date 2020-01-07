@@ -1,3 +1,4 @@
+//Note: update this file (seed.js) to use Passport.js (similar to create in useController.js)instead of the Mongoose create method
 const mongoose = require("mongoose"),
   Subscriber = require("./models/subscriber");
 
