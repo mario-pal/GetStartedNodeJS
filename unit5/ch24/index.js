@@ -56,6 +56,9 @@ const express = require("express"),
   expressValidator = require("express-validator"),
   passport = require("passport");
 
+//note: middleware added within express.js gives the request object access to a library of methods...
+//...These methods are extended to the request as it enters the application. As the request is passed through the...
+//...middleware chain, you can call these middleware methods (e.g. passport.js methods) anywhere you like.
 app.set("view engine", "ejs");
 app.use(layouts);
 
@@ -128,7 +131,7 @@ router.use((req, res, next) => {
   res.locals.flashMessages = req.flash(); //a flash message is no different from a local variable being available to the view.
   res.locals.loggedIn = req.isAuthenticated(); //isAuthenticated is a method provided by Passport.js...
   //...(checks whether there is an exxisting user stored in the request cookies)
-  res.locals.currentUser = req.user;
+  res.locals.currentUser = req.user; //req.user is set to the authenticated user after log in via passport.authenticate in the usersController
   next(); //to show potential success and error flash messages I add the code to display those messages in layout.ejs
 });
 //end of session management?
@@ -161,6 +164,11 @@ router.post(
   "/users/login",
   usersController.authenticate //,
   //usersController.redirectView//usersController.redirectView no longer needed if using passport.js autheticate method in usersController
+);
+router.get(
+  "/users/logout",
+  usersController.logout,
+  usersController.redirectView
 );
 //the :id parameter will be filled with the user's ID passing in from the index page
 //note: you can change the name of the :id paramter as long as you're consistent in your other code

@@ -257,5 +257,12 @@ module.exports = {
         next();
       }
     });
+  },
+
+  logout: (req, res, next) => {
+    req.logout(); //this uses the logout method provided by passport.js; it clears the current user's session
+    req.flash("success", "You have been logged out!");
+    res.locals.redirect = "/";
+    next();
   }
 };
