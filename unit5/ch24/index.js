@@ -115,7 +115,7 @@ router.use(
 router.use(connectFlash()); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
 //...as part of a session.
 
-router.use(passport.initialize());
+router.use(passport.initialize()); //this line is where passport officially becomes middleware
 router.use(passport.session()); //must be defined after the definiton of express session
 
 //setting up passport serializing

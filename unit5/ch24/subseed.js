@@ -1,7 +1,6 @@
 //Note: update this file (seed.js) to use Passport.js (similar to create in useController.js)instead of the Mongoose create method
 const mongoose = require("mongoose"),
-  Subscriber = require("./models/subscriber"),
-  User = require("./models/user");
+  Subscriber = require("./models/subscriber");
 
 mongoose.connect("mongodb://localhost:27017/recipedb", {
   useNewUrlParser: true
@@ -9,7 +8,7 @@ mongoose.connect("mongodb://localhost:27017/recipedb", {
 
 mongoose.connection;
 
-/*var contacts = [
+var contacts = [
   {
     name: "Jon Wexler",
     email: "jon@jonwexler.com",
@@ -25,53 +24,30 @@ mongoose.connection;
     email: "souffle@recipeapp.com",
     zipCode: 19103
   }
-];*/
-
-var contacts = [
-  {
-    name: { first: "Jordan", last: "Peterson" },
-    email: "j@p.com",
-    zipCode: 11111
-  },
-  {
-    name: { first: "Slavoj", last: "Zizek" },
-    email: "s@z.com",
-    zipCode: 22222
-  },
-  {
-    name: { first: "Javier", last: "Harvard" },
-    email: "j@harvard.com",
-    zipCode: 13370
-  }
 ];
 
-User.deleteMany()
+Subscriber.deleteMany()
   .exec() //needed if youd like to work with genuine javascript promises even if no callback is passed
   .then(() => {
-    console.log("User data is empty!");
+    console.log("Subscriber data is empty!");
   });
 
 var commands = [];
 
 contacts.forEach(c => {
-  //commands.push(
-  /*Subscriber.create({
+  commands.push(
+    Subscriber.create({
       name: c.name,
       email: c.email
-    })*/
-  User.register(c, "passwerd", (error, user) => {
-    if (error) console.log(error);
-  });
-  //);
+    })
+  );
 });
 
-/*Promise.all(commands)
+Promise.all(commands)
   .then(r => {
     console.log(JSON.stringify(r));
     mongoose.connection.close();
   })
   .catch(error => {
     console.log(`ERROR: ${error}`);
-  });*/
-
-//mongoose.connection.close();
+  });

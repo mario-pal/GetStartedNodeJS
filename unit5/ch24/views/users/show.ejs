@@ -6,7 +6,8 @@
       <th>Name</th>
       <th>Email</th>
       <th>Zip Code</th>
-      <th>Password</th>
+      <!--<th>Password</th> this field is not needed if the User model has no password field 
+        (in this case the user model has a hash and salt field via use of passport-local-mongoose)-->
     </tr>
   </thead>
   <tbody>
@@ -14,7 +15,7 @@
       <td><%= user.fullName %></td>
       <td><%= user.email %></td>
       <td><%= user.zipCode %></td>
-      <td><%= user.password %></td>
+      <!--<td><%= user.password %></td>-->
     </tr>
   </tbody>
 </table>

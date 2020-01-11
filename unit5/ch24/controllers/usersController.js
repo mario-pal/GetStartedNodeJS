@@ -227,6 +227,8 @@ module.exports = {
   },
   //validating user data entered in web page form
   validate: (req, res, next) => {
+    req.check("first", "First name is invalid").notEmpty();
+    req.check("last", "Last name is invalid").notEmpty();
     req
       .sanitizeBody("email")
       .normalizeEmail({
@@ -244,7 +246,7 @@ module.exports = {
       })
       .equals(req.body.zipCode);
 
-    //req.check("password", "Password cannot be empty").notEmpty();
+    req.check("password", "Password cannot be empty").notEmpty();
 
     req.getValidationResult().then(error => {
       if (!error.isEmpty()) {
