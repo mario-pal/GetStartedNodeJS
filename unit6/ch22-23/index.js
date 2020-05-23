@@ -1,13 +1,7 @@
 const mongoose = require("mongoose");
-/*mongoose.connect("mongodb://localhost:27017/recipedb", {
+mongoose.connect("mongodb://localhost:27017/recipedb", {
   useNewUrlParser: true
-});*/
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/recipedb",
-  {
-    useNewUrlParser: true
-  }
-); //added for heroku deployment
+});
 mongoose.Promise = global.Promise; //needed for using promises to handle errors (and to use promise chains)
 //const db = mongoose.connection;
 
@@ -59,12 +53,8 @@ const express = require("express"),
   cookieParser = require("cookie-parser"),
   connectFlash = require("connect-flash"), //this package is dependent on sessions and cookies to pass flash messages between requests
   //user data entry validation
-  expressValidator = require("express-validator"),
-  passport = require("passport");
+  expressValidator = require("express-validator");
 
-//note: middleware added within express.js gives the request object access to a library of methods...
-//...These methods are extended to the request as it enters the application. As the request is passed through the...
-//...middleware chain, you can call these middleware methods (e.g. passport.js methods) anywhere you like.
 app.set("view engine", "ejs");
 app.use(layouts);
 
@@ -72,10 +62,6 @@ app.use(layouts);
 app.use(express.static("public"));
 
 app.set("port", process.env.PORT || 3000);
-
-const server = app.listen(app.get("port"), () => {
-  console.log(`Server running at http://localhost:${app.get("port")}`);
-}); //listening placed here for heroku deployment
 
 //body parsing
 app.use(
@@ -104,8 +90,7 @@ app.use("/", router); //this tells this Express.js application to use the router
 //...as a system for middleware and routing
 
 router.use(expressValidator()); //this must be added after express.json() and express.urlencoded() middleware is introduced...
-//...since the request body must be parsed before it can be validated...you must also install express-validator 5.3 or before to use...
-//...express-validator as a function in this way
+//...since the request body must be parsed before it can be validated
 
 router.use(cookieParser("HaHaULose")); //this indicates that you want to use cookies and that you want your sessions to parse cookie data sent back
 //cookieParser uses the code in its argument to encrypt your data  in cookies sent to the browser
@@ -125,26 +110,12 @@ router.use(
 router.use(connectFlash()); //flash messages display inofrmation to users of an application. They travel to user's browser from your server
 //...as part of a session.
 
-router.use(passport.initialize()); //this line is where passport officially becomes middleware
-router.use(passport.session()); //must be defined after the definiton of express session
-
-//setting up passport serializing
-const User = require("./models/user");
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 router.use((req, res, next) => {
-  //make sure to initialize passport and all its configurations before defining this middleware since you use passport.js methods
-  //purpose of this custom middleware is to gain access to variables in the clientside views
   //this middleware configuration treats connectFlash messages like a local variable on the response
   res.locals.flashMessages = req.flash(); //a flash message is no different from a local variable being available to the view.
-  res.locals.loggedIn = req.isAuthenticated(); //isAuthenticated is a method provided by Passport.js...
-  //...(checks whether there is an exxisting user stored in the request cookies)
-  res.locals.currentUser = req.user; //req.user is set to the authenticated user after log in via passport.authenticate in the usersController
   next(); //to show potential success and error flash messages I add the code to display those messages in layout.ejs
 });
-//end of session management?
+//end of session management
 
 router.use(
   /*configure the application router to use methodOverride as middleware.
@@ -172,12 +143,7 @@ router.post(
 router.get("/users/login", usersController.login); //route to view login page
 router.post(
   "/users/login",
-  usersController.authenticate //,
-  //usersController.redirectView//usersController.redirectView no longer needed if using passport.js autheticate method in usersController
-);
-router.get(
-  "/users/logout",
-  usersController.logout,
+  usersController.authenticate,
   usersController.redirectView
 );
 //the :id parameter will be filled with the user's ID passing in from the index page
@@ -259,6 +225,6 @@ app.use(errorController.pageNotFoundError);
 app.use(errorController.internalServerError);
 
 //listen
-/*app.listen(app.get("port"), () => {
+app.listen(app.get("port"), () => {
   console.log(`Server running at http://localhost:${app.get("port")}`);
-});*/
+});
