@@ -1,6 +1,8 @@
 const mongoose = require("mongoose"),
   bcrypt = require("bcrypt"),
+  passportLocalMongoose = require("passport-local-mongoose"), //you can use this method to let the User model access passport methods such as User.register
   { Schema } = mongoose; //without this, you would otherwise need to do const userSchema = new mongoose.Schema({
+
 const userSchema = new Schema(
   {
     name: {
@@ -24,10 +26,10 @@ const userSchema = new Schema(
       min: [1000, "Zip code too short"],
       max: 99999
     },
-    password: {
+    /*password: {
       type: String,
       required: true
-    },
+    },*/
     courses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     subscribedAccount: { type: Schema.Types.ObjectId, ref: "Subscriber" }
   },
@@ -71,7 +73,7 @@ userSchema.pre("save", function(next) {
 });
 
 //hash passwords before they are saved in the database by using bcrypt
-userSchema.pre("save", function(next) {
+/*userSchema.pre("save", function(next) {
   //run everytime the mongoose create or save method is used
   let user = this;
   bcrypt
@@ -84,11 +86,16 @@ userSchema.pre("save", function(next) {
       console.log(`Error in hashing password: ${error.message}`);
       next(error);
     });
-});
+});*/
 
-userSchema.methods.passwordComparison = function(inputPassword) {
+/*userSchema.methods.passwordComparison = function(inputPassword) {
   let user = this;
   return bcrypt.compare(inputPassword, user.password);
-};
-
+};*/
+//when the following plugin is in place,  Passport.js automatically takes care of password storage ...
+//... so you can remove the password property from the userSchema. This plugin modifies your schema behind...
+//...the scenes to add hash and salt fields to your User model in place of the password field that would otherwise be inputted manually
+userSchema.plugin(passportLocalMongoose, { usernameField: "email" }); //use email of the user's login parameter instead of the default username...
+//...The plugin sets up passportLocalMongoose to create salt and hash fields for the User model...
+//...The plugin also removes the need to manually add a password field to the user schema
 module.exports = mongoose.model("User", userSchema);

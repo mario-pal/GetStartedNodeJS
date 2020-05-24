@@ -1,3 +1,4 @@
+//Note: update this file (seed.js) to use Passport.js (similar to create in useController.js)instead of the Mongoose create method
 const mongoose = require("mongoose"),
   Subscriber = require("./models/subscriber");
 
@@ -26,7 +27,7 @@ var contacts = [
 ];
 
 Subscriber.deleteMany()
-  .exec()
+  .exec() //needed if youd like to work with genuine javascript promises even if no callback is passed
   .then(() => {
     console.log("Subscriber data is empty!");
   });

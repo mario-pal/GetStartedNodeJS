@@ -1,4 +1,5 @@
-const User = require("../models/user");
+const User = require("../models/user"),
+  passport = require("passport");
 
 //This is fine only if you want to couple your query and the displaying of the index view
 /*module.exports = {
@@ -13,7 +14,14 @@ const User = require("../models/user");
       });
   }
 };*/
-
+const getUserParams = body => {
+  //create a custom function to pull subscriber data from the request
+  return {
+    name: { first: body.first, last: body.last },
+    email: body.email,
+    zipCode: parseInt(body.zipCode)
+  };
+};
 //this approach decouples the query from the index view display
 module.exports = {
   index: (req, res, next) => {
@@ -40,16 +48,35 @@ module.exports = {
   },
   create: (req, res, next) => {
     if (req.skip) {
-      //refer to the validate action that sets this custom property to true if there was a problem with user data form entry
+      //refer to the validate action that sets this custom property to true if there was a problem with user data validation
       next();
     }
-    let userParams = {
+    let newUser = new User(getUserParams(req.body));
+
+    User.register(newUser, req.body.password, (error, user) => {
+      if (user) {
+        req.flash(
+          "success",
+          `${user.fullName}'s account created successfully!`
+        );
+        res.locals.redirect = "/users";
+        next();
+      } else {
+        req.flash(
+          "error",
+          `Failed to create user account because: ${error.message}.`
+        );
+        res.locals.redirect = "/users/new";
+        next();
+      }
+    });
+    /*let userParams = {
       name: {
         first: req.body.first, //where the form input feild has the name attribute set to first
         last: req.body.last
       },
       email: req.body.email,
-      password: req.body.password,
+      //password: req.body.password,
       zipCode: req.body.zipCode
     };
 
@@ -73,7 +100,7 @@ module.exports = {
         );
         next();
         //next(error);
-      });
+      });*/
   },
   redirectView: (req, res, next) => {
     let redirectPath = res.locals.redirect;
@@ -84,11 +111,13 @@ module.exports = {
   login: (req, res) => {
     res.render("users/login");
   },
-  authenticate: (req, res, next) => {
+  /*(req, res, next) => {
     User.findOne({
       email: req.body.email
     })
-      .then(user => {
+      .then(*/
+  authenticate:
+    /*user => {
         if (user) {
           user.passwordComparison(req.body.password).then(passwordsMatch => {
             if (passwordsMatch) {
@@ -116,12 +145,20 @@ module.exports = {
           res.locals.redirect = "/users/login";
           next();
         }
-      })
+      }*/
+    /*)
       .catch(error => {
         console.log(`Error logging in user: ${error.message}`);
         next(error);
-      });
-  },
+      });*/
+    passport.authenticate("local", {
+      //authenticating via the "local" strategy
+      failureRedirect: "/users/login",
+      failureFlash: "Failed to login",
+      successRedirect: "/",
+      successFlash: "Logged in!"
+    }), //the login route in index.js(main file) no longer needs the usersController.redirectView action when using this
+  //},
   //===============================
   //show action (showing a specific user's profile)
   show: (req, res, next) => {
@@ -161,7 +198,7 @@ module.exports = {
           last: req.body.last
         },
         email: req.body.email,
-        password: req.body.password,
+        //password: req.body.password,
         zipCode: req.body.zipCode
       };
     User.findByIdAndUpdate(userId, { $set: userParams }) //mongoose method
@@ -190,6 +227,8 @@ module.exports = {
   },
   //validating user data entered in web page form
   validate: (req, res, next) => {
+    req.check("first", "First name is invalid").notEmpty();
+    req.check("last", "Last name is invalid").notEmpty();
     req
       .sanitizeBody("email")
       .normalizeEmail({
@@ -220,5 +259,12 @@ module.exports = {
         next();
       }
     });
+  },
+
+  logout: (req, res, next) => {
+    req.logout(); //this uses the logout method provided by passport.js; it clears the current user's session
+    req.flash("success", "You have been logged out!");
+    res.locals.redirect = "/";
+    next();
   }
 };
